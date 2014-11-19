@@ -276,7 +276,7 @@ public class AnalyzeActivity extends Activity {
 		long minutes = (long) ((mTotalTime / (1000*60)) % 60);
 		long hours   = (long) (mTotalTime / (1000*60*60));
 		
-		mValueTime.setText(String.format("%02d:%02d:%05.1f", hours, minutes, secondsDecimal));
+		mValueTime.setText(String.format("%02d:%02d:%03.1f", hours, minutes, secondsDecimal));
 		mValueEvents.setText(Integer.toString(mNumSteps, 10));
 		if(mFreqAvg != null)  mValueAverage.setText(FORMAT_FREQ.format(mFreqAvg*FREQ_DISP_SCALING));
 		if(mFreqRmsVar != null)mValueRmsvar.setText(FORMAT_FREQ.format(mFreqRmsVar*FREQ_DISP_SCALING));

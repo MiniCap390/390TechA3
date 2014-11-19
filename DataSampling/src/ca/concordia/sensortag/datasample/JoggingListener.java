@@ -113,7 +113,8 @@ public class JoggingListener extends SensorTagLoggerListener implements SensorTa
 				Log.i(TAG, "Accelerometer shake detected");
 				// reset/start the cooldown timer
 				mCooldownCounterMs = 0;
-				mContext.onEventRecorded();
+				//Notify record service with the filter data
+				mContext.onEventRecorded(mLastFiltAcc.toString());
 			}
 		}
 		else {

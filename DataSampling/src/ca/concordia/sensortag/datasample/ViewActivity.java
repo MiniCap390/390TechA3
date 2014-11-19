@@ -1,5 +1,9 @@
 package ca.concordia.sensortag.datasample;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.Activity;
 import android.app.ListActivity;
 import android.app.LoaderManager;
 import ca.concordia.sensortag.datasample.RecordService.RecordServiceListener;
@@ -33,7 +37,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class ViewActivity extends ListActivity {
+public class ViewActivity extends Activity implements RecordServiceListener {
 	static public final String TAG = "ViewAct"; // Tag for Android's logcat
 	
 	/* Service */
@@ -42,7 +46,8 @@ public class ViewActivity extends ListActivity {
 	// This is the Adapter being used to display the list's data
 	private ArrayAdapter<String> mListAdapter;
 	
-	//GUI
+	//GUI list of steps , Init to non-null
+	private List<String> StepEvents = new ArrayList<String>();
 	
 	/**
 	 * Called by Android when the Activity is first created. This sets up the GUI for the Activity,
@@ -83,8 +88,7 @@ public class ViewActivity extends ListActivity {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			Log.i(TAG, "RecordService connected.");
 			mRecSvc = (RecordService.Binder) service;
-			//analyzeData();
-			//displayData();
+			mRecSvc.addStepListener(ViewActivity.this);
 		}
 
 		/**
@@ -109,8 +113,8 @@ public class ViewActivity extends ListActivity {
                 new ArrayAdapter<String>(
                         this, // The current context (this activity)
                         R.layout.list_item_step, // The name of the layout ID.
-                        R.id.list_item_step_textview // The ID of the textview to populate.
-                        );
+                        R.id.list_item_step_textview, // The ID of the textview to populate.
+                        StepEvents);
 		
 		ListView listView = (ListView) findViewById(R.id.listview_steps);
         listView.setAdapter(mListAdapter);
@@ -125,7 +129,7 @@ public class ViewActivity extends ListActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		//if(!mIsAnalyzed) connectService();
+		connectService();
 	}
 
 	/**
@@ -152,6 +156,31 @@ public class ViewActivity extends ListActivity {
 		super.onDestroy();
 	}
 	
+	
+	/**
+	 * Called when RecordService's status changes.
+	 * @param s The new status value.
+	 */
+	@Override
+	public void onStatusChanged(Status s) {
+		//Ignore
+	}
+	
+	/**
+	 * Called when RecordService's receives a Step event.
+	 * @param s The new status value.
+	 */
+	@Override
+	public void onStepEvent(final String time,final String point3d) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run(){
+				StepEvents.add(time + " , " + point3d);
+				mListAdapter.notifyDataSetChanged ();
+			}
+		});
+	}
+	
 	/**
 	 * Called when a menu item is pressed. In this case we don't have an explicit menu, but we do
 	 * have the "back" button in the Action Bar (top bar). We want it to act like the regular Back
@@ -169,4 +198,6 @@ public class ViewActivity extends ListActivity {
             	return super.onOptionsItemSelected(item);
 	    }
 	}
+
+	
 }

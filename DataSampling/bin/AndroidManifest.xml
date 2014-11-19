@@ -109,6 +109,15 @@ application do (permissions which the user has to accept when installing the app
             android:screenOrientation="portrait" >
         </activity>
         
+         <!--
+        This activity reads the recorded data so far, analyses it, and shows the analysed data on-
+        screen.
+        -->
+        <activity
+            android:name="ca.concordia.sensortag.datasample.ViewActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        
         <!--
         This is the "main" activity for setting up the Data Sampling application. This is only
         launched by the DeviceSelectActivity, so we don't have any special properties to give it

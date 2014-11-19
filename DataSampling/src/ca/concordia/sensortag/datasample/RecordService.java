@@ -146,6 +146,7 @@ public class RecordService extends Service {
 	// list, modify it and replace the old one with the new one. Existing iterators will continue
 	// to point to the old one, which will later be garbage collected when it is no longer in use.
 	private CopyOnWriteArraySet<RecordServiceListener>  mListeners;
+	private CopyOnWriteArraySet<RecordServiceListener>  mStepListeners;
 
 	/**
 	 * Called when the service is first created (regardless of whether it is bound or started).
@@ -172,6 +173,7 @@ public class RecordService extends Service {
 		
 		// Listeners container
 		mListeners = new CopyOnWriteArraySet<RecordServiceListener>();
+		mStepListeners = new CopyOnWriteArraySet<RecordServiceListener>();
 	}
 
 	/**
@@ -386,9 +388,9 @@ public class RecordService extends Service {
 		int minutes = (int)(time_s_mod_hour / MIN_TO_SEC);
 		
 		long time_s_mod_min = time_s_mod_hour - (minutes * MIN_TO_SEC);
-		int seconds = (int)(time_s_mod_min);
+		double seconds = (double)(time_s_mod_min);		//Modified to get better precision to the 1/100th of second  
 		
-		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+		return String.format("%02d:%02d:%02.2f", hours, minutes, seconds);		//Added 2 floating point values
 	}
 	
 	/**
@@ -479,6 +481,7 @@ public class RecordService extends Service {
 		 * @param s The new status.
 		 */
 		void onStatusChanged(Status s);
+		void onStepEvent(String time, String point3D);
 	}
 
 	/**
@@ -500,6 +503,20 @@ public class RecordService extends Service {
 			Log.d(TAG, "Binder.removeListener(" + l + ")");
 			mService.removeListener(l);
 		}
+		
+		/** Set a listener to call when step events are received. */
+		public void addStepListener(RecordServiceListener l) {
+			Log.d(TAG, "Binder.addListener(" + l + ")");
+			mService.addStepListener(l);
+		}
+		
+		/** Remove a step listener. */
+		public void removeStepListener(RecordServiceListener l) {
+			Log.d(TAG, "Binder.removeListener(" + l + ")");
+			mService.removeStepListener(l);
+		}
+		
+		
 
 		/**
 		 * Start the service in a persistent way, and initialise a connection to a SensorTag.
@@ -686,6 +703,14 @@ public class RecordService extends Service {
 	public void addListener(RecordServiceListener l) {
 		mListeners.add(l);
 	}
+	
+	/**
+	 * Register a RecordServiceListener with the RecordService. See {@link RecordServiceListener}.
+	 * @param l The Listener object to register.
+	 */
+	public void addStepListener(RecordServiceListener l) {
+		mStepListeners.add(l);
+	}
 
 	/**
 	 * Deregister a RecordServiceListener with the RecordService. See {@link RecordServiceListener}.
@@ -693,6 +718,14 @@ public class RecordService extends Service {
 	 */
 	public void removeListener(RecordServiceListener l) {
 		mListeners.remove(l);
+	}
+	
+	/**
+	 * Deregister a RecordServiceListener with the RecordService. See {@link RecordServiceListener}.
+	 * @param l The Listener object to remove.
+	 */
+	public void removeStepListener(RecordServiceListener l) {
+		mStepListeners.remove(l);
 	}
 
 	/**
@@ -702,6 +735,16 @@ public class RecordService extends Service {
 	protected void notifyListeners() {
 		for(RecordServiceListener l : mListeners) {
 			l.onStatusChanged(getStatus());
+		}
+	}
+	
+	/**
+	 * Notify all registered step listeners of the current recording status. This should be called
+	 * internally whenever the status changes.
+	 */
+	protected void notifyStepListeners(String point3D_vectInfo) {
+		for(RecordServiceListener l : mStepListeners) {
+			l.onStepEvent(formatTime(mData.getElapsedTime()), point3D_vectInfo );
 		}
 	}
 	
@@ -917,7 +960,7 @@ public class RecordService extends Service {
 	 * If the current status is RECORD, adds the event to the stored data. If we have reached the
 	 * maximum samples recorded, stops the recording.
 	 */
-	public void onEventRecorded() {
+	public void onEventRecorded(String point) {
 		if(!isStarted()) {
 			Log.e(TAG, "onEventRecorded(): Service not configured. Call startService() from the Binder.");
 			return;
@@ -929,6 +972,7 @@ public class RecordService extends Service {
 		}
 		
 		mData.addEvent(mData.getElapsedTime());
+		notifyStepListeners(point);
 		
 		if(mData.getRecordMaxSamples() != RECORD_SAMPLES_INFINITE &&
 				mData.getSamplesStored() >= mData.getRecordMaxSamples()) {

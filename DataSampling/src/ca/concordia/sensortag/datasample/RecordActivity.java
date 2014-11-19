@@ -59,6 +59,7 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 	private Button mButtonRecordPause;
 	private Button mButtonReset;
 	private Button mButtonAnalyze;
+	private Button mButtonView;
 
 	/**
 	 * Called by Android when the Activity is first created. This sets up the GUI for the Activity,
@@ -127,6 +128,7 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 		mButtonRecordPause = (Button) findViewById(R.id.buttonRecordPause);
 		mButtonReset = (Button) findViewById(R.id.buttonReset);
 		mButtonAnalyze = (Button) findViewById(R.id.buttonAnalyze);
+		mButtonView = (Button) findViewById(R.id.buttonView);
 
 		// Set up the listeners for the GUI elements
 		mInputTime.setOnEditorActionListener(mOnEditorActionDurationListener);
@@ -141,6 +143,7 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 		// Record/Pause button listener is also set at that point in time.
 		mButtonReset.setOnClickListener(mOnClickResetListener);
 		mButtonAnalyze.setOnClickListener(mOnClickAnalyzeListener);
+		mButtonView.setOnClickListener(mOnClickViewStepListener);
 		updateButtons(); // will disable all buttons, since the service hasn't yet loaded
 	}
 
@@ -633,6 +636,23 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 		}
 		
 	};
+	
+	/**
+	 * Listener for the View Steps button.
+	 */
+	private Button.OnClickListener mOnClickViewStepListener = new Button.OnClickListener() {
+
+		/**
+		 * Called when the Analyze button is clicked. Starts the Analyze activity.
+		 */
+		@Override
+		public void onClick(View v) {
+			Log.i(TAG, "Starting View Steps activity.");
+			Intent intent = new Intent(RecordActivity.this, ViewActivity.class);
+			startActivity(intent);
+		}
+		
+	};
 
 	/**
 	 * Called when RecordService's status changes.
@@ -648,5 +668,10 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 			}
 			
 		});
+	}
+
+	@Override
+	public void onStepEvent(String time, String point3d) {
+		// Ignore StepEvent
 	}
 }

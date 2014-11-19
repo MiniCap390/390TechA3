@@ -10,13 +10,13 @@
 
     <TextView
         android:id="@+id/textDuration"
-        android:labelFor="@+id/inputTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/inputTime"
         android:layout_alignBottom="@+id/inputTime"
         android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@+id/inputTime"
+        android:labelFor="@+id/inputTime"
         android:text="@string/act_samp_form_time_limit"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -45,11 +45,11 @@
 
     <TextView
         android:id="@+id/textOr"
-        android:labelFor="@+id/inputSamples"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/checkboxForever"
         android:layout_centerHorizontal="true"
+        android:labelFor="@+id/inputSamples"
         android:text="@string/act_samp_or"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -95,6 +95,7 @@
         android:text="@string/act_samp_button_record" />
 
     <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -118,5 +119,14 @@
             android:drawableLeft="@drawable/ic_menu_view"
             android:text="@string/act_samp_button_analyse" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/linearLayout1"
+        android:layout_below="@+id/linearLayout1"
+        android:drawableLeft="@drawable/ic_media_play"
+        android:text="@string/act_samp_button_view" />
 
 </RelativeLayout>

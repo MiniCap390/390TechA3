@@ -31,4 +31,5 @@
     <string name="act_anal_rmsvar">RMS of variation</string>
     <string name="act_anal_min">Minimum</string>
     <string name="act_anal_max">Maximum</string>
+    <string name="act_samp_button_view">Step View</string>
 </resources>
