@@ -31,7 +31,7 @@ public class RecordingData {
 
 	public static String TAG = "RecordingData";
 	public static int DEFAULT_SAMPLES_SIZE = 512;
-
+	
 	// SharedPreferences keys
 	public static String PREF_STATUS = "ca.concordia.datasample.Status";
 	public static String PREF_REC_DURATION = "ca.concordia.datasample.RecDuration";
@@ -68,6 +68,7 @@ public class RecordingData {
 	 *            The SharedPreferences object to read from and write to.
 	 */
 	RecordingData(SharedPreferences prefs) {
+		
 		Log.i(TAG, "new RecordingData using " + prefs);
 		mPrefs = prefs;
 		setNewRecording(0, 0); // to reset all variables
@@ -96,6 +97,7 @@ public class RecordingData {
 	 * @param timestamp The timestamp (in milliseconds) at which an event was recorded.
 	 */
 	synchronized public void addEvent(long timestamp) {
+		
 		mEventTimestamps.add(timestamp);
 		mEventsChanged = true;
 		Log.v(TAG, "addEvent(" + timestamp + ") [total:" + mEventTimestamps.size() + "]");

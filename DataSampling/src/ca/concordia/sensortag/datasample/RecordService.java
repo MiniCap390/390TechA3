@@ -135,6 +135,7 @@ public class RecordService extends Service {
 	private String mAppName = null;
 	private SharedPreferences mPrefs = null;
 	private RecordingData mData = null;
+	private static DBAdapter myDb = null;
 	
 	private NotificationManager mNotificationManager;
 	private Runnable mNotificationUpdateRunner;
@@ -154,6 +155,9 @@ public class RecordService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		// For db
+		openDB();
 		
 		// Initialise status members
 		mIsStarted = false;
@@ -232,6 +236,14 @@ public class RecordService extends Service {
 		
 		mIsStarted = true;
 		return START_STICKY;
+	}
+	
+	private void openDB() {
+		myDb = new DBAdapter(this);
+		myDb.open();
+	}
+	private void closeDB() {
+		myDb.close();
 	}
 	
 	/**
@@ -582,7 +594,19 @@ public class RecordService extends Service {
 		 */
 		public List<Long> getData() {
 			Log.d(TAG, "Binder.getData()");
-			return mService.getData().getData();
+			return mService.getDataDb().getData();
+		}
+		
+		public List<String> getAllSteps() {
+			Log.d(TAG, "Binder.getDisplay()");
+			
+			return mService.getDataDb().getCurrentAllStepInfoString();
+		}
+		
+		public String getLastStep() {
+			Log.d(TAG, "Binder.getDisplay()");
+			
+			return mService.getDataDb().getLastStepInfoString();
 		}
 
 		/**
@@ -677,6 +701,8 @@ public class RecordService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		
+		closeDB();
 		
 		Log.v(TAG, "RecordService.onDestroy()");
 		
@@ -805,9 +831,15 @@ public class RecordService extends Service {
 	 * may occur due to concurrency or simply data being in an unexpected state for the
 	 * RecordService.
 	 */
+	public DBAdapter getDataDb() {
+		
+		return myDb;
+	} 
+	
 	public RecordingData getData() {
+		
 		return mData;
-	}
+	} 
 	
 	/**
 	 * Start or resume recording data with the current settings. Can only start recording from
@@ -930,6 +962,8 @@ public class RecordService extends Service {
 		Log.i(TAG, "Clearing all data.");
 		Toast.makeText(this, mAppName + ": Clearing all data.", Toast.LENGTH_SHORT).show();
 		
+		myDb.deleteAllTableValues();
+		
 		mData.setStatus(RecordingData.Status.NOT_STARTED);
 		mData.setNewRecording(mData.getRecordDuration(), mData.getRecordMaxSamples());
 		mData.savePreferences();
@@ -954,6 +988,7 @@ public class RecordService extends Service {
 		}
 	}
 
+
 	/**
 	 * Called (by JoggingListener) whenever a new event is detected.
 	 * 
@@ -971,7 +1006,15 @@ public class RecordService extends Service {
 			return;
 		}
 		
+		//For Db
+		
+		StepInfo newStep = new StepInfo();
+		newStep.setElapsed_time(mData.getElapsedTime());
+		newStep.setXYZ(1, 1, 1); //(x,y,z)
+		myDb.bufferStepInfo(newStep);
+		
 		mData.addEvent(mData.getElapsedTime());
+		
 		notifyStepListeners(point);
 		
 		if(mData.getRecordMaxSamples() != RECORD_SAMPLES_INFINITE &&

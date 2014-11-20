@@ -1,6 +1,7 @@
 package ca.concordia.sensortag.datasample;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.app.Activity;
@@ -130,6 +131,8 @@ public class ViewActivity extends Activity implements RecordServiceListener {
 	protected void onResume() {
 		super.onResume();
 		connectService();
+		
+
 	}
 
 	/**
@@ -175,8 +178,23 @@ public class ViewActivity extends Activity implements RecordServiceListener {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run(){
-				StepEvents.add(time + " , " + point3d);
-				mListAdapter.notifyDataSetChanged ();
+				
+				/*String tempString = mRecSvc.getLastStep();
+
+				Collections.reverse(StepEvents);
+				StepEvents.add(tempString);
+				Collections.reverse(StepEvents);
+				mListAdapter.notifyDataSetChanged();*/
+				
+				
+				List<String> tempString = mRecSvc.getAllSteps();
+				
+				for(String temp1: tempString) {
+					Collections.reverse(StepEvents);
+					StepEvents.add(temp1);
+					Collections.reverse(StepEvents);
+					mListAdapter.notifyDataSetChanged();
+				}
 			}
 		});
 	}
