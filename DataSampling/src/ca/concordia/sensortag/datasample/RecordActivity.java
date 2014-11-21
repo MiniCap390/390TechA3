@@ -480,6 +480,8 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 			mButtonAnalyze.setClickable(false);
 			mButtonReset.setEnabled(false);
 			mButtonReset.setClickable(false);
+			mButtonView.setEnabled(false);
+			mButtonView.setClickable(false);
 			return;
 		}
 
@@ -497,6 +499,8 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 			mButtonAnalyze.setClickable(false);
 			mButtonReset.setEnabled(false);
 			mButtonReset.setClickable(false);
+			mButtonView.setEnabled(false);
+			mButtonView.setClickable(false);
 			break;
 
 		case FINISHED:
@@ -510,6 +514,8 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 			
 			mButtonAnalyze.setEnabled(true);
 			mButtonAnalyze.setClickable(true);
+			mButtonView.setEnabled(true);
+			mButtonView.setClickable(true);
 			mButtonReset.setEnabled(true);
 			mButtonReset.setClickable(true);
 			break;
@@ -525,6 +531,8 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 			
 			mButtonAnalyze.setEnabled(false);
 			mButtonAnalyze.setClickable(false);
+			mButtonView.setEnabled(false);
+			mButtonView.setClickable(false);
 			mButtonReset.setEnabled(false);
 			mButtonReset.setClickable(false);
 			break;
@@ -540,6 +548,8 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 			
 			mButtonAnalyze.setEnabled(true);
 			mButtonAnalyze.setClickable(true);
+			mButtonView.setEnabled(true);
+			mButtonView.setClickable(true);
 			mButtonReset.setEnabled(true);
 			mButtonReset.setClickable(true);
 			break;
@@ -555,6 +565,8 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 			
 			mButtonAnalyze.setEnabled(false);
 			mButtonAnalyze.setClickable(false);
+			mButtonView.setEnabled(true);
+			mButtonView.setClickable(true);
 			mButtonReset.setEnabled(false);
 			mButtonReset.setClickable(false);
 			break;
@@ -568,6 +580,8 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 			mButtonAnalyze.setClickable(false);
 			mButtonReset.setEnabled(false);
 			mButtonReset.setClickable(false);
+			mButtonView.setEnabled(false);
+			mButtonView.setClickable(false);
 			break;
 		}
 	}
@@ -671,7 +685,7 @@ public class RecordActivity extends Activity implements RecordServiceListener {
 	}
 
 	@Override
-	public void onStepEvent(String time, String point3d) {
+	public void onStepEvent() {
 		// Ignore StepEvent
 	}
 }

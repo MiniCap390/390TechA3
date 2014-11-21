@@ -114,7 +114,7 @@ public class JoggingListener extends SensorTagLoggerListener implements SensorTa
 				// reset/start the cooldown timer
 				mCooldownCounterMs = 0;
 				//Notify record service with the filter data
-				mContext.onEventRecorded(mLastFiltAcc.toString());
+				mContext.onEventRecorded(mLastFiltAcc);
 			}
 		}
 		else {

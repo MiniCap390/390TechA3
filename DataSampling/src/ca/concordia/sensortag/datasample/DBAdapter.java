@@ -3,7 +3,6 @@ package ca.concordia.sensortag.datasample;
 //------------------------------------ DBADapter.java ---------------------------------------------
 import java.util.ArrayList;
 import java.util.Collections;
-
 import java.util.List;
 
 import android.content.ContentValues;
@@ -20,10 +19,13 @@ public class DBAdapter {
 	private final Context context;
 	private final DatabaseHelper myDBHelper;
 	private SQLiteDatabase db;
+	
+	
+	
 
 	//
 	// ///////////////////////////////////////////////////////////////////
-	// Public methods:
+	// Private methods:
 	// ///////////////////////////////////////////////////////////////////
 	private final List<StepInfo> step_container = new ArrayList<StepInfo>();
 	private final int BUFFER_SIZE = 1;
@@ -71,6 +73,24 @@ public class DBAdapter {
 		return  current_step_container;
 	}
 	
+	private String formatTime(double time_ms) {
+		final long HRS_TO_SEC = 3600;
+		final long MIN_TO_SEC = 60;
+		
+		double time_s = time_ms/1000;
+		int hours = (int)(time_s / HRS_TO_SEC);
+		
+		double time_s_mod_hour = time_s - (hours * HRS_TO_SEC);
+		int minutes = (int)(time_s_mod_hour / MIN_TO_SEC);
+		
+		double time_s_mod_min = time_s_mod_hour - (minutes * MIN_TO_SEC);
+		double seconds = (double)(time_s_mod_min);		//Modified to get better precision to the 1/100th of second  
+		double totaltime = (hours*HRS_TO_SEC + minutes*MIN_TO_SEC + seconds)*1000.0;
+		double remaindertime_ms = (time_ms - totaltime)/1;
+		seconds = seconds + remaindertime_ms;
+		return String.format("%02d:%02d:%02.1f", hours, minutes, seconds);		//Added 1 floating point value
+	}
+	
 	//
 	// ///////////////////////////////////////////////////////////////////
 	// Public methods:
@@ -110,12 +130,11 @@ public class DBAdapter {
 	public String getLastStepInfoString() {
 		List<StepInfo> current_step_container = getAllCurrentRowStepInfo();
 		StepInfo current_step = current_step_container.get(current_step_container.size() - 1);
-		String lastStepString = "Time (ms): " + current_step.getElapsed_time()
-				+ " X:" + current_step.getX()
-				+ " Y:" + current_step.getY()
-				+ " Z:" + current_step.getZ()
-				+ "\n"
-				;
+		String lastStepString = "Time : " + formatTime(current_step.getElapsed_time()) + "\n"
+				+ "Acceleration Vector in XYZ components: " + "\n"
+				+ " X: " + current_step.getX() + "\n"
+				+ " Y: " + current_step.getY() + "\n"
+				+ " Z: " + current_step.getZ() + "\n";
 		
 		return lastStepString;
 	}
@@ -126,15 +145,15 @@ public class DBAdapter {
 		List<String> displayList = new ArrayList<String>(); 
 		String display;
 		
-		for(StepInfo current_step: current_step_container) {
+		for(StepInfo current_step : current_step_container) {
 			
 			display = "";
-			display = display + "Time (ms): " + current_step.getElapsed_time()
-					+ " X:" + current_step.getX()
-					+ " Y:" + current_step.getY()
-					+ " Z:" + current_step.getZ()
-					+ "\n"
-					;
+			display = display + "Time : " + formatTime(current_step.getElapsed_time()) + "\n"
+					+ "Acceleration Vector in XYZ components: " + "\n"
+					+ " X: " + current_step.getX() + "\n"
+					+ " Y: " + current_step.getY() + "\n"
+					+ " Z: " + current_step.getZ() + "\n";
+			
 			displayList.add(display);
 		}
 		

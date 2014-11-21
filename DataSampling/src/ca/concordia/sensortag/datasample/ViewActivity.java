@@ -90,6 +90,9 @@ public class ViewActivity extends Activity implements RecordServiceListener {
 			Log.i(TAG, "RecordService connected.");
 			mRecSvc = (RecordService.Binder) service;
 			mRecSvc.addStepListener(ViewActivity.this);
+			//Call repopulation of the List
+			setList(mRecSvc);
+			
 		}
 
 		/**
@@ -103,12 +106,26 @@ public class ViewActivity extends Activity implements RecordServiceListener {
 	};
 	
 	/**
+	 * Called after service is connected to get the Events from the DB
+	 */
+	private void setList(RecordService.Binder service){
+		List<String> temp = service.getAllSteps();	//Construct temporary list of events
+		Collections.reverse(temp);					//Reverse the order so that the most recent is first
+		for(String i: temp) {						//Add each element in the new order to the StepEvents list
+			StepEvents.add(i);
+			mListAdapter.notifyDataSetChanged();	//Notify the adapter
+		}	
+	}
+	
+	
+	/**
 	 * Called in onCreate(). Sets up the GUI before the data is shown, and gets references to all
 	 * the GUI elements.
 	 */
 	private void setupGui() {
 		// Show the "back"/"up" button on the Action Bar (top left corner)
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setTitle("Data Sampler - Step Info");
 		
 		mListAdapter =
                 new ArrayAdapter<String>(
@@ -131,9 +148,7 @@ public class ViewActivity extends Activity implements RecordServiceListener {
 	protected void onResume() {
 		super.onResume();
 		connectService();
-		
-
-	}
+		}
 
 	/**
 	 * Called by Android when the Activity goes out of focus (for example, if another Application
@@ -174,28 +189,17 @@ public class ViewActivity extends Activity implements RecordServiceListener {
 	 * @param s The new status value.
 	 */
 	@Override
-	public void onStepEvent(final String time,final String point3d) {
+	public void onStepEvent() {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run(){
 				
-				/*String tempString = mRecSvc.getLastStep();
+				String lastStep = mRecSvc.getLastStep();
 
-				Collections.reverse(StepEvents);
-				StepEvents.add(tempString);
-				Collections.reverse(StepEvents);
-				mListAdapter.notifyDataSetChanged();*/
+				StepEvents.add(0, lastStep);
+				mListAdapter.notifyDataSetChanged();
 				
-				
-				List<String> tempString = mRecSvc.getAllSteps();
-				
-				for(String temp1: tempString) {
-					Collections.reverse(StepEvents);
-					StepEvents.add(temp1);
-					Collections.reverse(StepEvents);
-					mListAdapter.notifyDataSetChanged();
 				}
-			}
 		});
 	}
 	

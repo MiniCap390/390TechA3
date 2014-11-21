@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import ti.android.ble.sensortag.Sensor;
+import ti.android.util.Point3D;
 import ca.concordia.sensortag.SensorTagListener;
 import ca.concordia.sensortag.SensorTagManager;
 import ca.concordia.sensortag.SensorTagManager.ErrorType;
@@ -388,21 +389,22 @@ public class RecordService extends Service {
 	 * @param time_ms A time interval in milliseconds.
 	 * @return A string representing the time interval in h:mm:ss format.
 	 */
-	private String formatTime(long time_ms) {
+	private String formatTime(double time_ms) {
 		final long HRS_TO_SEC = 3600;
-		final long HRS_TO_MIN = 60;
 		final long MIN_TO_SEC = 60;
 		
-		long time_s = time_ms / SEC_TO_MSEC;
+		double time_s = time_ms/1000;
 		int hours = (int)(time_s / HRS_TO_SEC);
 		
-		long time_s_mod_hour = time_s - (hours * HRS_TO_SEC);
+		double time_s_mod_hour = time_s - (hours * HRS_TO_SEC);
 		int minutes = (int)(time_s_mod_hour / MIN_TO_SEC);
 		
-		long time_s_mod_min = time_s_mod_hour - (minutes * MIN_TO_SEC);
+		double time_s_mod_min = time_s_mod_hour - (minutes * MIN_TO_SEC);
 		double seconds = (double)(time_s_mod_min);		//Modified to get better precision to the 1/100th of second  
-		
-		return String.format("%02d:%02d:%02.2f", hours, minutes, seconds);		//Added 2 floating point values
+		double totaltime = (hours*HRS_TO_SEC + minutes*MIN_TO_SEC + seconds)*1000.0;
+		double remaindertime_ms = (time_ms - totaltime)/1;
+		seconds = seconds + remaindertime_ms;
+		return String.format("%02d:%02d:%02.1f", hours, minutes, seconds);		//Added 1 floating point value
 	}
 	
 	/**
@@ -493,7 +495,7 @@ public class RecordService extends Service {
 		 * @param s The new status.
 		 */
 		void onStatusChanged(Status s);
-		void onStepEvent(String time, String point3D);
+		void onStepEvent();
 	}
 
 	/**
@@ -768,9 +770,9 @@ public class RecordService extends Service {
 	 * Notify all registered step listeners of the current recording status. This should be called
 	 * internally whenever the status changes.
 	 */
-	protected void notifyStepListeners(String point3D_vectInfo) {
+	protected void notifyStepListeners() {
 		for(RecordServiceListener l : mStepListeners) {
-			l.onStepEvent(formatTime(mData.getElapsedTime()), point3D_vectInfo );
+			l.onStepEvent();
 		}
 	}
 	
@@ -995,7 +997,7 @@ public class RecordService extends Service {
 	 * If the current status is RECORD, adds the event to the stored data. If we have reached the
 	 * maximum samples recorded, stops the recording.
 	 */
-	public void onEventRecorded(String point) {
+	public void onEventRecorded(Point3D point) {
 		if(!isStarted()) {
 			Log.e(TAG, "onEventRecorded(): Service not configured. Call startService() from the Binder.");
 			return;
@@ -1006,16 +1008,16 @@ public class RecordService extends Service {
 			return;
 		}
 		
-		//For Db
+		//Add to DataBase
 		
 		StepInfo newStep = new StepInfo();
 		newStep.setElapsed_time(mData.getElapsedTime());
-		newStep.setXYZ(1, 1, 1); //(x,y,z)
+		newStep.setXYZ( point.x , point.y, point.z); //(x,y,z)
 		myDb.bufferStepInfo(newStep);
 		
-		mData.addEvent(mData.getElapsedTime());
+		mData.addEvent(mData.getElapsedTime());	//Not sure this is still necessary
 		
-		notifyStepListeners(point);
+		notifyStepListeners();
 		
 		if(mData.getRecordMaxSamples() != RECORD_SAMPLES_INFINITE &&
 				mData.getSamplesStored() >= mData.getRecordMaxSamples()) {
