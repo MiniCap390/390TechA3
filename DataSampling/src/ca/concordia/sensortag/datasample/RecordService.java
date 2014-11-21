@@ -389,23 +389,21 @@ public class RecordService extends Service {
 	 * @param time_ms A time interval in milliseconds.
 	 * @return A string representing the time interval in h:mm:ss format.
 	 */
-	private String formatTime(double time_ms) {
-		final long HRS_TO_SEC = 3600;
-		final long MIN_TO_SEC = 60;
-		
-		double time_s = time_ms/1000;
-		int hours = (int)(time_s / HRS_TO_SEC);
-		
-		double time_s_mod_hour = time_s - (hours * HRS_TO_SEC);
-		int minutes = (int)(time_s_mod_hour / MIN_TO_SEC);
-		
-		double time_s_mod_min = time_s_mod_hour - (minutes * MIN_TO_SEC);
-		double seconds = (double)(time_s_mod_min);		//Modified to get better precision to the 1/100th of second  
-		double totaltime = (hours*HRS_TO_SEC + minutes*MIN_TO_SEC + seconds)*1000.0;
-		double remaindertime_ms = (time_ms - totaltime)/1;
-		seconds = seconds + remaindertime_ms;
-		return String.format("%02d:%02d:%02.1f", hours, minutes, seconds);		//Added 1 floating point value
-	}
+	private String formatTime(long time_ms) {
+				final long HRS_TO_SEC = 3600;
+				final long MIN_TO_SEC = 60;
+				
+				long time_s = time_ms / SEC_TO_MSEC;
+				int hours = (int)(time_s / HRS_TO_SEC);
+				
+				long time_s_mod_hour = time_s - (hours * HRS_TO_SEC);
+				int minutes = (int)(time_s_mod_hour / MIN_TO_SEC);
+				
+				long time_s_mod_min = time_s_mod_hour - (minutes * MIN_TO_SEC);
+				int seconds = (int)(time_s_mod_min);
+				
+				return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+			}
 	
 	/**
 	 * Generate and show a Notification in the Android notification drawer, with current status
